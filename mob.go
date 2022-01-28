@@ -8,13 +8,13 @@ import (
 )
 
 var meteorImages []string = []string{
-	"./assets/meteorBrown_big1.png",
-	"./assets/meteorBrown_big2.png",
-	"./assets/meteorBrown_med1.png",
-	"./assets/meteorBrown_med3.png",
-	"./assets/meteorBrown_small1.png",
-	"./assets/meteorBrown_small2.png",
-	"./assets/meteorBrown_tiny1.png",
+	"assets/meteorBrown_big1.png",
+	"assets/meteorBrown_big2.png",
+	"assets/meteorBrown_med1.png",
+	"assets/meteorBrown_med3.png",
+	"assets/meteorBrown_small1.png",
+	"assets/meteorBrown_small2.png",
+	"assets/meteorBrown_tiny1.png",
 }
 
 type Mob struct {
@@ -28,11 +28,8 @@ type Mob struct {
 	lastUpdate     time.Time
 }
 
-func NewMob(x, y int) (*Mob, error) {
-	spriteImage, err := getImageFromFilePath(meteorImages[rand.Intn(7)])
-	if err != nil {
-		return nil, err
-	}
+func NewMob() (*Mob, error) {
+	spriteImage := getImageFromFilePath(meteorImages[rand.Intn(7)])
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,
@@ -40,7 +37,7 @@ func NewMob(x, y int) (*Mob, error) {
 		spriteBounds.Max.X,
 		spriteBounds.Max.Y,
 	)
-	rect.SetLeft(rand.Intn(screenWidth - (spriteBounds.Max.X - spriteBounds.Min.X)))
+	rect.SetLeft(rand.Intn(screenWidth - rect.Width()))
 	rect.SetTop(rand.Intn(50) - 150)
 	return &Mob{
 		image:          spriteImage,
@@ -68,18 +65,15 @@ func (b *Mob) rotate() {
 }
 
 func (b *Mob) Update() {
-	if b.rect.Top() < 0 {
-		b.isAlive = false
-	}
 	b.rotate()
 	b.rect.MoveY(b.speedy)
 	b.rect.MoveX(b.speedx)
 
-	// TODO:
-	//         if (self.rect.top > HEIGHT + 10) or (self.rect.left < -25) or (self.rect.right > WIDTH + 20):
-	//             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
-	//             self.rect.y = random.randrange(-100, -40)
-	//             self.speedy = random.randrange(1, 8)        ## for randomizing the speed of the Mob
+	if (b.rect.Top() > screenHeight+10) || (b.rect.Left() < -25) || (b.rect.Right() > screenWidth+20) {
+		b.rect.SetLeft(rand.Intn(screenWidth - b.rect.Width()))
+		b.rect.SetTop(rand.Intn(61) - 100)
+		b.speedy = rand.Intn(8) + 1
+	}
 }
 
 func (b *Mob) Draw(screen *ebiten.Image) {
@@ -92,6 +86,10 @@ func (b *Mob) IsAlive() bool {
 	return b.isAlive
 }
 
-func (b *Mob) Rect() Rect {
-	return b.rect
+func (b *Mob) Rect() *Rect {
+	return &b.rect
+}
+
+func (b *Mob) Kill() {
+	b.isAlive = false
 }

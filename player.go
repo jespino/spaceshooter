@@ -28,25 +28,23 @@ type Player struct {
 	rect               Rect
 	bulletSoundPlayer  *audio.Player
 	missileSoundPlayer *audio.Player
+	isAlive            bool
 }
 
 func NewPlayer(x, y int) (*Player, error) {
-	bulletSound, err := getAudioFromFile("./sounds/pew.ogg")
-	if err != nil {
-		panic(err.Error())
-	}
+	bulletSound := getAudioFromFile("sounds/pew.ogg")
 	bulletSoundPlayer, err := audioContext.NewPlayer(bulletSound)
-
-	missileSound, err := getAudioFromFile("./sounds/rocket.ogg")
 	if err != nil {
 		panic(err.Error())
 	}
-	missileSoundPlayer, err := audioContext.NewPlayer(missileSound)
 
-	spriteImage, err := getImageFromFilePath("./assets/playerShip1_orange.png")
+	missileSound := getAudioFromFile("sounds/rocket.ogg")
+	missileSoundPlayer, err := audioContext.NewPlayer(missileSound)
 	if err != nil {
-		return nil, err
+		panic(err.Error())
 	}
+
+	spriteImage := getImageFromFilePath("assets/playerShip1_orange.png")
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,
@@ -70,6 +68,7 @@ func NewPlayer(x, y int) (*Player, error) {
 		rect:               rect,
 		bulletSoundPlayer:  bulletSoundPlayer,
 		missileSoundPlayer: missileSoundPlayer,
+		isAlive:            true,
 	}, nil
 }
 
@@ -114,7 +113,6 @@ func (p *Player) shoot() {
 			if err != nil {
 				panic(err)
 			}
-			allSprites.Add(bullet)
 			bullets.Add(bullet)
 			p.bulletSoundPlayer.Rewind()
 			p.bulletSoundPlayer.Play()
@@ -128,8 +126,6 @@ func (p *Player) shoot() {
 			if err != nil {
 				panic(err)
 			}
-			allSprites.Add(bullet1)
-			allSprites.Add(bullet2)
 			bullets.Add(bullet1)
 			bullets.Add(bullet2)
 			p.bulletSoundPlayer.Rewind()
@@ -149,9 +145,6 @@ func (p *Player) shoot() {
 			if err != nil {
 				panic(err)
 			}
-			allSprites.Add(bullet1)
-			allSprites.Add(bullet2)
-			allSprites.Add(missile1)
 			bullets.Add(bullet1)
 			bullets.Add(bullet2)
 			bullets.Add(missile1)
@@ -182,9 +175,13 @@ func (p *Player) Draw(screen *ebiten.Image) {
 }
 
 func (p *Player) IsAlive() bool {
-	return true
+	return p.isAlive
 }
 
-func (p *Player) Rect() Rect {
-	return p.rect
+func (p *Player) Rect() *Rect {
+	return &p.rect
+}
+
+func (p *Player) Kill() {
+	p.isAlive = false
 }

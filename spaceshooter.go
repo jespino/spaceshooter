@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	_ "image/png"
 	"log"
 
@@ -8,15 +9,20 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/audio"
 )
 
-var allSprites Sprites
-var bullets Sprites
-var mobs Sprites
+//go:embed assets sounds
+var assets embed.FS
+
+var allSprites SpritesGroup
+var bullets SpritesGroup
+var mobs SpritesGroup
 var audioContext *audio.Context
 
 func init() {
-	allSprites = Sprites{}
-	bullets = Sprites{}
-	mobs = Sprites{}
+	bullets = SpritesGroup{}
+	mobs = SpritesGroup{}
+	allSprites = SpritesGroup{}
+	allSprites.Add(&bullets)
+	allSprites.Add(&mobs)
 	audioContext = audio.NewContext(sampleRate)
 }
 

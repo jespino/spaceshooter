@@ -8,15 +8,21 @@ type Sprite interface {
 	Update()
 	Draw(screen *ebiten.Image)
 	IsAlive() bool
-	Rect() Rect
+	Rect() *Rect
+	Kill()
 }
 
-type Sprites struct {
+type SpritesGroup struct {
 	sprites []Sprite
 	num     int
 }
 
-func (s *Sprites) Update() {
+type Collition struct {
+	Member1 Sprite
+	Member2 Sprite
+}
+
+func (s *SpritesGroup) Update() {
 	newSprites := []Sprite{}
 	count := 0
 	for i := 0; i < s.num; i++ {
@@ -30,22 +36,42 @@ func (s *Sprites) Update() {
 	s.num = count
 }
 
-func (s *Sprites) Draw(screen *ebiten.Image) {
+func (s *SpritesGroup) Draw(screen *ebiten.Image) {
 	for i := 0; i < s.num; i++ {
 		s.sprites[i].Draw(screen)
 	}
 }
 
-func (s *Sprites) Add(sprite Sprite) {
+func (s *SpritesGroup) Add(sprite Sprite) {
 	s.sprites = append(s.sprites, sprite)
 	s.num++
 }
 
-func (s *Sprites) IsAlive() bool {
+func (s *SpritesGroup) IsAlive() bool {
 	return true
 }
 
-func (s *Sprites) Rect() Rect {
+func (s *SpritesGroup) Rect() *Rect {
 	// TODO: Create a valid rect from the underneath sprites
-	return NewRect(0, 0, 0, 0)
+	rect := NewRect(0, 0, 0, 0)
+	return &rect
+}
+
+func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []Collition {
+	collitions := []Collition{}
+	for i := 0; i < g1.num; i++ {
+		if g1.sprites[i].IsAlive() {
+			rect1 := g1.sprites[i].Rect()
+			for j := 0; j < g2.num; j++ {
+				rect2 := g2.sprites[j].Rect()
+				if rect1.Overlaps(rect2.Rectangle) {
+					collitions = append(collitions, Collition{g1.sprites[i], g2.sprites[j]})
+				}
+			}
+		}
+	}
+	return collitions
+}
+
+func (s *SpritesGroup) Kill() {
 }

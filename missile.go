@@ -10,10 +10,7 @@ type Missile struct {
 }
 
 func NewMissile(x, y int) (*Missile, error) {
-	spriteImage, err := getImageFromFilePath("./assets/missile.png")
-	if err != nil {
-		return nil, err
-	}
+	spriteImage := getImageFromFilePath("assets/missile.png")
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,
@@ -48,6 +45,10 @@ func (b *Missile) IsAlive() bool {
 	return b.isAlive
 }
 
-func (b *Missile) Rect() Rect {
-	return b.rect
+func (b *Missile) Rect() *Rect {
+	return &b.rect
+}
+
+func (b *Missile) Kill() {
+	b.isAlive = false
 }

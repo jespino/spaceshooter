@@ -10,10 +10,7 @@ type Bullet struct {
 }
 
 func NewBullet(x, y int) (*Bullet, error) {
-	spriteImage, err := getImageFromFilePath("./assets/laserRed16.png")
-	if err != nil {
-		return nil, err
-	}
+	spriteImage := getImageFromFilePath("assets/laserRed16.png")
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,
@@ -48,6 +45,10 @@ func (b *Bullet) IsAlive() bool {
 	return b.isAlive
 }
 
-func (b *Bullet) Rect() Rect {
-	return b.rect
+func (b *Bullet) Rect() *Rect {
+	return &b.rect
+}
+
+func (b *Bullet) Kill() {
+	b.isAlive = false
 }

@@ -21,14 +21,11 @@ type Pow struct {
 
 func NewPow(x, y int) (*Pow, error) {
 	powType := rand.Intn(2)
-	imagePath := "./assets/shield_gold.png"
+	imagePath := "assets/shield_gold.png"
 	if powType == PowTypeGun {
-		imagePath = "./assets/bolt_gold.png"
+		imagePath = "assets/bolt_gold.png"
 	}
-	spriteImage, err := getImageFromFilePath(imagePath)
-	if err != nil {
-		return nil, err
-	}
+	spriteImage := getImageFromFilePath(imagePath)
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,

@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	screenWidth  = 800
-	screenHeight = 600
+	screenWidth  = 600
+	screenHeight = 800
 
 	frameOX     = 0
 	frameOY     = 32
@@ -44,40 +44,22 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
-	mainMenuImage, err := getImageFromFilePath("./assets/main.png")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	gameBackground, err := getImageFromFilePath("./assets/back.png")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	mainMenuMusic, err := getAudioFromFile("./sounds/menu.ogg")
-	if err != nil {
-		panic(err.Error())
-	}
-
+	mainMenuImage := getImageFromFilePath("assets/main.png")
+	gameBackground := getImageFromFilePath("assets/back.png")
+	mainMenuMusic := getAudioFromFile("sounds/menu.ogg")
 	mainMenuMusicPlayer, err := audioContext.NewPlayer(audio.NewInfiniteLoop(mainMenuMusic, mainMenuMusic.Length()))
 	if err != nil {
 		return nil, err
 	}
 	mainMenuMusicPlayer.Play()
 
-	gameMusic, err := getAudioFromFile("./sounds/tgfcoder-FrozenJam-SeamlessLoop.ogg")
-	if err != nil {
-		panic(err.Error())
-	}
+	gameMusic := getAudioFromFile("sounds/tgfcoder-FrozenJam-SeamlessLoop.ogg")
 	gameMusicPlayer, err := audioContext.NewPlayer(audio.NewInfiniteLoop(gameMusic, gameMusic.Length()))
 	if err != nil {
 		return nil, err
 	}
 
-	getReadyAudio, err := getAudioFromFile("./sounds/getready.ogg")
-	if err != nil {
-		panic(err.Error())
-	}
+	getReadyAudio := getAudioFromFile("sounds/getready.ogg")
 	getReadyPlayer, err := audioContext.NewPlayer(getReadyAudio)
 	if err != nil {
 		return nil, err
@@ -109,6 +91,14 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 	allSprites.Add(player)
+	for x := 0; x < 8; x++ {
+		mob, err := NewMob()
+		if err != nil {
+			return nil, err
+		}
+		mobs.Add(mob)
+	}
+
 	return &Game{
 		screen:              ScreenMainMenu,
 		gameMusicPlayer:     gameMusicPlayer,
@@ -148,6 +138,21 @@ func (g *Game) Update() error {
 			os.Exit(0)
 		}
 		allSprites.Update()
+		collitions := SpritesGroupsCollides(bullets, mobs)
+		for _, collition := range collitions {
+			collition.Member1.Kill()
+			collition.Member2.Kill()
+			mob, err := NewMob()
+			if err != nil {
+				return err
+			}
+			mobs.Add(mob)
+			explosion, err := NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+			if err != nil {
+				return err
+			}
+			allSprites.Add(explosion)
+		}
 	}
 	return nil
 }
