@@ -19,7 +19,7 @@ type Pow struct {
 	powType int
 }
 
-func NewPow(x, y int) (*Pow, error) {
+func NewPow(x, y int) *Pow {
 	powType := rand.Intn(2)
 	imagePath := "assets/shield_gold.png"
 	if powType == PowTypeGun {
@@ -41,7 +41,7 @@ func NewPow(x, y int) (*Pow, error) {
 		speedy:  2,
 		powType: powType,
 		rect:    rect,
-	}, nil
+	}
 }
 
 func (p *Pow) Update() {
@@ -61,6 +61,10 @@ func (p *Pow) IsAlive() bool {
 	return p.isAlive
 }
 
-func (p *Pow) Rect() Rect {
-	return p.rect
+func (p *Pow) Rect() *Rect {
+	return &p.rect
+}
+
+func (p *Pow) Kill() {
+	p.isAlive = false
 }

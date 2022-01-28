@@ -15,14 +15,17 @@ var assets embed.FS
 var allSprites SpritesGroup
 var bullets SpritesGroup
 var mobs SpritesGroup
+var powerups SpritesGroup
 var audioContext *audio.Context
 
 func init() {
 	bullets = SpritesGroup{}
 	mobs = SpritesGroup{}
+	powerups = SpritesGroup{}
 	allSprites = SpritesGroup{}
 	allSprites.Add(&bullets)
 	allSprites.Add(&mobs)
+	allSprites.Add(&powerups)
 	audioContext = audio.NewContext(sampleRate)
 }
 

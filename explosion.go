@@ -34,7 +34,7 @@ type Explosion struct {
 	frame      int
 }
 
-func NewExplosion(small bool, x, y int) (*Explosion, error) {
+func NewExplosion(small bool, x, y int) *Explosion {
 	spriteBounds := explosionAnimation[0].Bounds()
 	rect := NewRect(
 		spriteBounds.Min.X,
@@ -50,7 +50,7 @@ func NewExplosion(small bool, x, y int) (*Explosion, error) {
 		small:      small,
 		frame:      0,
 		lastUpdate: time.Now(),
-	}, nil
+	}
 }
 
 func (b *Explosion) Update() {

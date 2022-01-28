@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 	"os"
 	"time"
 
@@ -92,11 +93,7 @@ func NewGame() (*Game, error) {
 	}
 	allSprites.Add(player)
 	for x := 0; x < 8; x++ {
-		mob, err := NewMob()
-		if err != nil {
-			return nil, err
-		}
-		mobs.Add(mob)
+		mobs.Add(NewMob())
 	}
 
 	return &Game{
@@ -138,23 +135,24 @@ func (g *Game) Update() error {
 			os.Exit(0)
 		}
 		allSprites.Update()
-		collitions := SpritesGroupsCollides(bullets, mobs)
-		for _, collition := range collitions {
-			collition.Member1.Kill()
-			collition.Member2.Kill()
-			mob, err := NewMob()
-			if err != nil {
-				return err
-			}
-			mobs.Add(mob)
-			explosion, err := NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
-			if err != nil {
-				return err
-			}
-			allSprites.Add(explosion)
-		}
+		g.handleBulletsMobsCollitions()
 	}
 	return nil
+}
+
+func (g *Game) handleBulletsMobsCollitions() {
+	collitions := SpritesGroupsCollides(bullets, mobs)
+	for _, collition := range collitions {
+		collition.Member1.Kill()
+		collition.Member2.Kill()
+		mobs.Add(NewMob())
+		explosion := NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+		allSprites.Add(explosion)
+		if rand.Intn(10) == 9 {
+			pow := NewPow(collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+			powerups.Add(pow)
+		}
+	}
 }
 
 func (g *Game) drawMainMenuScreen(screen *ebiten.Image) {

@@ -28,7 +28,7 @@ type Mob struct {
 	lastUpdate     time.Time
 }
 
-func NewMob() (*Mob, error) {
+func NewMob() *Mob {
 	spriteImage := getImageFromFilePath(meteorImages[rand.Intn(7)])
 	spriteBounds := spriteImage.Bounds()
 	rect := NewRect(
@@ -48,7 +48,7 @@ func NewMob() (*Mob, error) {
 		rotation_speed: rand.Intn(17) - 8,
 		lastUpdate:     time.Now(),
 		rect:           rect,
-	}, nil
+	}
 }
 
 func (b *Mob) rotate() {
