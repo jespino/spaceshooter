@@ -40,13 +40,18 @@ type Game struct {
 	screen              string
 	mainFont            font.Face
 	bigFont             font.Face
+	smallFont           font.Face
+	score               int
+	lives               int
 	mainMenuBackground  *ebiten.Image
 	gameBackground      *ebiten.Image
+	shipImage           *ebiten.Image
 }
 
 func NewGame() (*Game, error) {
 	mainMenuImage := getImageFromFilePath("assets/main.png")
 	gameBackground := getImageFromFilePath("assets/back.png")
+	shipImage := getImageFromFilePath("assets/playerShip1_orange.png")
 	mainMenuMusic := getAudioFromFile("sounds/menu.ogg")
 	mainMenuMusicPlayer, err := audioContext.NewPlayer(audio.NewInfiniteLoop(mainMenuMusic, mainMenuMusic.Length()))
 	if err != nil {
@@ -87,6 +92,15 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
+	smallFont, err := opentype.NewFace(fontObj, &opentype.FaceOptions{
+		Size:    16,
+		DPI:     72,
+		Hinting: font.HintingNone,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	player, err := NewPlayer(screenWidth/2, screenHeight-100)
 	if err != nil {
 		return nil, err
@@ -103,8 +117,12 @@ func NewGame() (*Game, error) {
 		mainMenuMusicPlayer: mainMenuMusicPlayer,
 		mainFont:            mainFont,
 		bigFont:             bigFont,
+		smallFont:           smallFont,
 		mainMenuBackground:  mainMenuImage,
 		gameBackground:      gameBackground,
+		shipImage:           shipImage,
+		score:               0,
+		lives:               3,
 	}, nil
 }
 
@@ -152,6 +170,7 @@ func (g *Game) handleBulletsMobsCollitions() {
 			pow := NewPow(collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
 			powerups.Add(pow)
 		}
+		g.score += 10
 	}
 }
 
@@ -164,6 +183,21 @@ func (g *Game) drawMainMenuScreen(screen *ebiten.Image) {
 	quitOptionText := "or [Q] To Quit"
 	quitOptionRect := text.BoundString(g.mainFont, quitOptionText)
 	text.Draw(screen, quitOptionText, g.mainFont, (screenWidth/2)-(quitOptionRect.Max.X/2), (screenHeight/2)+40, color.White)
+}
+
+func (g *Game) drawScore(screen *ebiten.Image) {
+	scoreText := fmt.Sprintf("Score: %d", g.score)
+	scoreRect := text.BoundString(g.smallFont, scoreText)
+	text.Draw(screen, scoreText, g.smallFont, (screenWidth/2)-(scoreRect.Max.X/2), 20, color.White)
+}
+
+func (g *Game) drawLives(screen *ebiten.Image) {
+	for x := 0; x < g.lives; x++ {
+		options := &ebiten.DrawImageOptions{}
+		options.GeoM.Scale(0.2, 0.2)
+		options.GeoM.Translate(float64(screenWidth-30-(30*x)), float64(10))
+		screen.DrawImage(g.shipImage, options)
+	}
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -180,6 +214,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		options := &ebiten.DrawImageOptions{}
 		screen.DrawImage(g.gameBackground, options)
 		allSprites.Draw(screen)
+		g.drawScore(screen)
+		g.drawLives(screen)
 	default:
 		panic(fmt.Sprintf("Invalid screen: %s\n", g.screen))
 	}

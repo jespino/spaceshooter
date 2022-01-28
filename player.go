@@ -24,7 +24,6 @@ type Player struct {
 	hide_time          int64
 	last_shot          int64
 	shot_delay         int64
-	lives              int
 	rect               Rect
 	bulletSoundPlayer  *audio.Player
 	missileSoundPlayer *audio.Player
@@ -49,8 +48,8 @@ func NewPlayer(x, y int) (*Player, error) {
 	rect := NewRect(
 		spriteBounds.Min.X,
 		spriteBounds.Min.Y,
-		spriteBounds.Max.X,
-		spriteBounds.Max.Y,
+		spriteBounds.Max.X-((spriteBounds.Max.X-spriteBounds.Min.X)/2),
+		spriteBounds.Max.Y-((spriteBounds.Max.Y-spriteBounds.Min.Y)/2),
 	)
 	rect.SetCenterX(x)
 	rect.SetCenterY(y)
@@ -59,7 +58,6 @@ func NewPlayer(x, y int) (*Player, error) {
 		speedx:             0,
 		shield:             100,
 		shot_delay:         250,
-		lives:              3,
 		last_shot:          time.Now().UnixMilli(),
 		hidden:             false,
 		hide_time:          time.Now().UnixMilli(),
@@ -170,6 +168,7 @@ func (p *Player) hide() {
 
 func (p *Player) Draw(screen *ebiten.Image) {
 	options := &ebiten.DrawImageOptions{}
+	options.GeoM.Scale(0.5, 0.5)
 	options.GeoM.Translate(float64(p.rect.Left()), float64(p.rect.Top()))
 	screen.DrawImage(p.image, options)
 }

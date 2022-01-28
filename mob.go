@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 	"time"
 
@@ -42,26 +43,20 @@ func NewMob() *Mob {
 	return &Mob{
 		image:          spriteImage,
 		isAlive:        true,
-		speedy:         rand.Intn(15) + 5,
-		speedx:         rand.Intn(7) - 3,
+		speedy:         5 + rand.Intn(15),
+		speedx:         3 - rand.Intn(7),
 		rotation:       0,
-		rotation_speed: rand.Intn(17) - 8,
+		rotation_speed: 2 - rand.Intn(5),
 		lastUpdate:     time.Now(),
 		rect:           rect,
 	}
 }
 
 func (b *Mob) rotate() {
-	// TODO
-	// time_now = pygame.time.get_ticks()
-	// if time_now - self.last_update > 50: # in milliseconds
-	// 	self.last_update = time_now
-	// 	self.rotation = (self.rotation + self.rotation_speed) % 360
-	// 	new_image = pygame.transform.rotate(self.image_orig, self.rotation)
-	// 	old_center = self.rect.center
-	// 	self.image = new_image
-	// 	self.rect = self.image.get_rect()
-	// 	self.rect.center = old_center
+	if time.Now().After(b.lastUpdate.Add(30 * time.Millisecond)) {
+		b.lastUpdate = time.Now()
+		b.rotation = (b.rotation + b.rotation_speed) % 360
+	}
 }
 
 func (b *Mob) Update() {
@@ -78,7 +73,9 @@ func (b *Mob) Update() {
 
 func (b *Mob) Draw(screen *ebiten.Image) {
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(float64(b.rect.Left()), float64(b.rect.Top()))
+	options.GeoM.Translate(-float64(b.rect.Width())/2, -float64(b.rect.Height())/2)
+	options.GeoM.Rotate(float64(b.rotation) / (2.0 * math.Pi))
+	options.GeoM.Translate(float64(b.rect.Left())+(float64(b.rect.Width())/2), float64(b.rect.Top())+(float64(b.rect.Height())/2))
 	screen.DrawImage(b.image, options)
 }
 

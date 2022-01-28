@@ -65,10 +65,12 @@ func (b *Explosion) Update() {
 
 func (b *Explosion) Draw(screen *ebiten.Image) {
 	options := &ebiten.DrawImageOptions{}
+	if b.small {
+		options.GeoM.Translate(-float64(b.rect.Width())/2, -float64(b.rect.Height())/2)
+		options.GeoM.Scale(0.5, 0.5)
+		options.GeoM.Translate(float64(b.rect.Width())/2, float64(b.rect.Height())/2)
+	}
 	options.GeoM.Translate(float64(b.rect.Left()), float64(b.rect.Top()))
-	// if b.small {
-	// 	options.GeoM.Scale(0.5, 0.5)
-	// }
 	screen.DrawImage(explosionAnimation[b.frame], options)
 }
 
