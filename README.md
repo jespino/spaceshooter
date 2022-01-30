@@ -21,9 +21,7 @@ This is a port to go of the pygame Space Shooter (https://github.com/tasdikrahma
 
 [[Back to top]](https://github.com/jespino/spaceshooter#index)
 
-Follow the youtube video to see how I fared on ``spaceShooter``
-
-[![Space Shooter Demo - Youtube](http://i.imgur.com/bHjlJfG.jpg)](https://www.youtube.com/watch?v=o99zpLsM-ZI)
+You can directly play this using web assambly compiled version here: https://jespino.github.io/spaceshooter/
 
 ## Screenshots
 
