@@ -273,17 +273,27 @@ func (g *Game) drawScore(screen *ebiten.Image) {
 }
 
 func (g *Game) drawShield(screen *ebiten.Image) {
-	shieldBackground := ebiten.NewImage(102, 10)
+	shieldBackground := ebiten.NewImage(102, 1)
 	shieldBackground.Fill(&color.White)
+	optionsBackground := &ebiten.DrawImageOptions{}
+	optionsBackground.GeoM.Translate(float64(10), float64(10))
+	screen.DrawImage(shieldBackground, optionsBackground)
+	optionsBackground.GeoM.Translate(float64(0), float64(9))
+	screen.DrawImage(shieldBackground, optionsBackground)
+	shieldBackground = ebiten.NewImage(1, 8)
+	shieldBackground.Fill(&color.White)
+	optionsBackground.GeoM.Translate(float64(0), float64(-8))
+	screen.DrawImage(shieldBackground, optionsBackground)
+	optionsBackground.GeoM.Translate(float64(101), float64(0))
+	screen.DrawImage(shieldBackground, optionsBackground)
+
 	shield := g.shield
 	if g.shield <= 0 {
 		shield = 0
 	}
+
 	shieldBar := ebiten.NewImage(shield, 8)
 	shieldBar.Fill(color.RGBA{R: 0, G: 255, B: 0, A: 255})
-	optionsBackground := &ebiten.DrawImageOptions{}
-	optionsBackground.GeoM.Translate(float64(10), float64(10))
-	screen.DrawImage(shieldBackground, optionsBackground)
 	optionsBar := &ebiten.DrawImageOptions{}
 	optionsBar.GeoM.Translate(float64(11), float64(11))
 	screen.DrawImage(shieldBar, optionsBar)
