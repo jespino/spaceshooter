@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	powerup_time = 1000
+	powerup_time = 30000
 	hide_time    = 1000
 )
 
@@ -155,7 +155,9 @@ func (p *Player) shoot() {
 }
 
 func (p *Player) powerup() {
-	p.power += 1
+	if p.power < 3 {
+		p.power += 1
+	}
 	p.power_time = time.Now().UnixMilli()
 }
 
