@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jespino/spaceshooter/sprites"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
 	"golang.org/x/image/font/opentype"
@@ -128,7 +129,7 @@ func NewGame() (*Game, error) {
 	}
 	allSprites.Add(player)
 	for x := 0; x < 8; x++ {
-		mobs.Add(NewMob())
+		mobs.Add(sprites.NewMob(screenWidth, screenHeight))
 	}
 
 	return &Game{
@@ -186,7 +187,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) handleBulletsMobsCollitions() {
-	collitions := SpritesGroupsCollides(bullets, mobs)
+	collitions := sprites.SpritesGroupsCollides(bullets, mobs)
 	for _, collition := range collitions {
 		if !collition.Member1.IsAlive() || !collition.Member2.IsAlive() {
 			continue
@@ -196,11 +197,11 @@ func (g *Game) handleBulletsMobsCollitions() {
 		expl.Play()
 		collition.Member1.Kill()
 		collition.Member2.Kill()
-		mobs.Add(NewMob())
-		explosion := NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+		mobs.Add(sprites.NewMob(screenWidth, screenHeight))
+		explosion := sprites.NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
 		allSprites.Add(explosion)
 		if rand.Intn(10) == 9 {
-			pow := NewPow(collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+			pow := sprites.NewPow(collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY(), screenHeight)
 			powerups.Add(pow)
 		}
 		g.score += 10
@@ -208,18 +209,18 @@ func (g *Game) handleBulletsMobsCollitions() {
 }
 
 func (g *Game) handlePlayerPowerupsCollitions() {
-	playerGroup := SpritesGroup{}
+	playerGroup := sprites.SpritesGroup{}
 	playerGroup.Add(g.player)
-	collitions := SpritesGroupsCollides(playerGroup, powerups)
+	collitions := sprites.SpritesGroupsCollides(playerGroup, powerups)
 	for _, collition := range collitions {
-		if collition.Member2.(*Pow).powType == PowTypeShield {
+		if collition.Member2.(*sprites.Pow).PowType == sprites.PowTypeShield {
 			g.shield += 10 + rand.Intn(20)
 			if g.shield > 100 {
 				g.shield = 100
 			}
 			collition.Member2.Kill()
 		}
-		if collition.Member2.(*Pow).powType == PowTypeGun {
+		if collition.Member2.(*sprites.Pow).PowType == sprites.PowTypeGun {
 			g.player.powerup()
 			collition.Member2.Kill()
 		}
@@ -227,16 +228,16 @@ func (g *Game) handlePlayerPowerupsCollitions() {
 }
 
 func (g *Game) handlePlayerMobsCollitions() {
-	playerGroup := SpritesGroup{}
+	playerGroup := sprites.SpritesGroup{}
 	playerGroup.Add(g.player)
-	collitions := SpritesGroupsCollides(playerGroup, mobs)
+	collitions := sprites.SpritesGroupsCollides(playerGroup, mobs)
 	for _, collition := range collitions {
 		radius := (float64(collition.Member2.Rect().Width()) * 0.90) / 2
 		g.shield -= int(radius * 2)
-		explosion := NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
+		explosion := sprites.NewExplosion(collition.Member2.Rect().Width() < 30, collition.Member2.Rect().CenterX(), collition.Member2.Rect().CenterY())
 		allSprites.Add(explosion)
 		if g.shield <= 0 {
-			explosion := NewPlayerExplosion(g.player.Rect().CenterX(), g.player.Rect().CenterY())
+			explosion := sprites.NewPlayerExplosion(g.player.Rect().CenterX(), g.player.Rect().CenterY())
 			allSprites.Add(explosion)
 			g.playerDiePlayer.Rewind()
 			g.playerDiePlayer.Play()
@@ -251,7 +252,7 @@ func (g *Game) handlePlayerMobsCollitions() {
 			}
 		}
 		collition.Member2.Kill()
-		mobs.Add(NewMob())
+		mobs.Add(sprites.NewMob(screenWidth, screenHeight))
 	}
 }
 

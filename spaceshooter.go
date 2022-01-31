@@ -7,22 +7,23 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/jespino/spaceshooter/sprites"
 )
 
 //go:embed assets sounds
 var assets embed.FS
 
-var allSprites SpritesGroup
-var bullets SpritesGroup
-var mobs SpritesGroup
-var powerups SpritesGroup
+var allSprites sprites.SpritesGroup
+var bullets sprites.SpritesGroup
+var mobs sprites.SpritesGroup
+var powerups sprites.SpritesGroup
 var audioContext *audio.Context
 
 func init() {
-	bullets = SpritesGroup{}
-	mobs = SpritesGroup{}
-	powerups = SpritesGroup{}
-	allSprites = SpritesGroup{}
+	bullets = sprites.SpritesGroup{}
+	mobs = sprites.SpritesGroup{}
+	powerups = sprites.SpritesGroup{}
+	allSprites = sprites.SpritesGroup{}
 	allSprites.Add(&bullets)
 	allSprites.Add(&mobs)
 	allSprites.Add(&powerups)

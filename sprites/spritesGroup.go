@@ -1,25 +1,13 @@
-package main
+package sprites
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/rect"
 )
-
-type Sprite interface {
-	Update()
-	Draw(screen *ebiten.Image)
-	IsAlive() bool
-	Rect() *Rect
-	Kill()
-}
 
 type SpritesGroup struct {
 	sprites []Sprite
 	num     int
-}
-
-type Collition struct {
-	Member1 Sprite
-	Member2 Sprite
 }
 
 func (s *SpritesGroup) Update() {
@@ -51,27 +39,27 @@ func (s *SpritesGroup) IsAlive() bool {
 	return true
 }
 
-func (s *SpritesGroup) Rect() *Rect {
+func (s *SpritesGroup) Rect() *rect.Rect {
 	// TODO: Create a valid rect from the underneath sprites
-	rect := NewRect(0, 0, 0, 0)
+	rect := rect.NewRect(0, 0, 0, 0)
 	return &rect
 }
 
-func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []Collition {
-	collitions := []Collition{}
+func (s *SpritesGroup) Kill() {
+	for i := 0; i < s.num; i++ {
+		s.sprites[i].Kill()
+	}
+}
+
+func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []*Collition {
+	collitions := []*Collition{}
 	for i := 0; i < g1.num; i++ {
-		if g1.sprites[i].IsAlive() {
-			rect1 := g1.sprites[i].Rect()
-			for j := 0; j < g2.num; j++ {
-				rect2 := g2.sprites[j].Rect()
-				if rect1.Overlaps(rect2.Rectangle) {
-					collitions = append(collitions, Collition{g1.sprites[i], g2.sprites[j]})
-				}
+		for j := 0; j < g2.num; j++ {
+			collition := SpritesCollides(g1.sprites[i], g2.sprites[j])
+			if collition != nil {
+				collitions = append(collitions, collition)
 			}
 		}
 	}
 	return collitions
-}
-
-func (s *SpritesGroup) Kill() {
 }

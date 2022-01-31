@@ -5,6 +5,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/jespino/spaceshooter/rect"
+	"github.com/jespino/spaceshooter/sprites"
 )
 
 const (
@@ -24,7 +26,7 @@ type Player struct {
 	hide_time          int64
 	last_shot          int64
 	shot_delay         int64
-	rect               Rect
+	rect               rect.Rect
 	bulletSoundPlayer  *audio.Player
 	missileSoundPlayer *audio.Player
 	isAlive            bool
@@ -45,7 +47,7 @@ func NewPlayer(x, y int) (*Player, error) {
 
 	spriteImage := getImageFromFilePath("assets/playerShip1_orange.png")
 	spriteBounds := spriteImage.Bounds()
-	rect := NewRect(
+	rect := rect.NewRect(
 		spriteBounds.Min.X,
 		spriteBounds.Min.Y,
 		spriteBounds.Max.X-((spriteBounds.Max.X-spriteBounds.Min.X)/2),
@@ -107,7 +109,7 @@ func (p *Player) shoot() {
 	if now-p.last_shot > p.shot_delay {
 		p.last_shot = now
 		if p.power == 1 {
-			bullet, err := NewBullet(p.rect.CenterX(), p.rect.Top())
+			bullet, err := sprites.NewBullet(p.rect.CenterX(), p.rect.Top())
 			if err != nil {
 				panic(err)
 			}
@@ -116,11 +118,11 @@ func (p *Player) shoot() {
 			p.bulletSoundPlayer.Play()
 		}
 		if p.power == 2 {
-			bullet1, err := NewBullet(p.rect.Left(), p.rect.CenterY())
+			bullet1, err := sprites.NewBullet(p.rect.Left(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			bullet2, err := NewBullet(p.rect.Right(), p.rect.CenterY())
+			bullet2, err := sprites.NewBullet(p.rect.Right(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
@@ -131,15 +133,15 @@ func (p *Player) shoot() {
 		}
 
 		if p.power >= 3 {
-			bullet1, err := NewBullet(p.rect.Left(), p.rect.CenterY())
+			bullet1, err := sprites.NewBullet(p.rect.Left(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			bullet2, err := NewBullet(p.rect.Right(), p.rect.CenterY())
+			bullet2, err := sprites.NewBullet(p.rect.Right(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			missile1, err := NewMissile(p.rect.CenterX(), p.rect.Top())
+			missile1, err := sprites.NewMissile(p.rect.CenterX(), p.rect.Top())
 			if err != nil {
 				panic(err)
 			}
@@ -179,7 +181,7 @@ func (p *Player) IsAlive() bool {
 	return p.isAlive
 }
 
-func (p *Player) Rect() *Rect {
+func (p *Player) Rect() *rect.Rect {
 	return &p.rect
 }
 

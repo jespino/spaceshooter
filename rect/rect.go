@@ -1,4 +1,4 @@
-package main
+package rect
 
 import "image"
 

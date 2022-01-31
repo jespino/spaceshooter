@@ -1,18 +1,26 @@
-package main
+package sprites
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	_ "embed"
+
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/rect"
+)
+
+//go:embed bullet.png
+var bulletImage []byte
 
 type Bullet struct {
 	image   *ebiten.Image
 	speedy  int
-	rect    Rect
+	rect    rect.Rect
 	isAlive bool
 }
 
 func NewBullet(x, y int) (*Bullet, error) {
-	spriteImage := getImageFromFilePath("assets/laserRed16.png")
+	spriteImage := imageFromBytes(bulletImage)
 	spriteBounds := spriteImage.Bounds()
-	rect := NewRect(
+	rect := rect.NewRect(
 		spriteBounds.Min.X,
 		spriteBounds.Min.Y,
 		spriteBounds.Max.X,
@@ -45,7 +53,7 @@ func (b *Bullet) IsAlive() bool {
 	return b.isAlive
 }
 
-func (b *Bullet) Rect() *Rect {
+func (b *Bullet) Rect() *rect.Rect {
 	return &b.rect
 }
 

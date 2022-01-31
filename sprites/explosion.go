@@ -1,33 +1,38 @@
-package main
+package sprites
 
 import (
+	"embed"
+	"fmt"
+	"image"
+	_ "image/png"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/rect"
 )
 
-var explosionImages []string = []string{
-	"assets/regularExplosion00.png",
-	"assets/regularExplosion01.png",
-	"assets/regularExplosion02.png",
-	"assets/regularExplosion03.png",
-	"assets/regularExplosion04.png",
-	"assets/regularExplosion05.png",
-	"assets/regularExplosion06.png",
-	"assets/regularExplosion07.png",
-	"assets/regularExplosion08.png",
-}
+//go:embed explosion
+var explosionFiles embed.FS
+
 var explosionAnimation []*ebiten.Image
 
 func init() {
-	for x := 0; x < len(explosionImages); x++ {
-		img := getImageFromFilePath(explosionImages[x])
-		explosionAnimation = append(explosionAnimation, img)
+	for x := 0; x < 9; x++ {
+		f, err := explosionFiles.Open(fmt.Sprintf("explosion/explosion%d.png", x))
+		if err != nil {
+			panic(err.Error())
+		}
+		defer f.Close()
+		img, _, err := image.Decode(f)
+		if err != nil {
+			panic(err.Error())
+		}
+		explosionAnimation = append(explosionAnimation, ebiten.NewImageFromImage(img))
 	}
 }
 
 type Explosion struct {
-	rect       Rect
+	rect       rect.Rect
 	isAlive    bool
 	lastUpdate time.Time
 	small      bool
@@ -36,7 +41,7 @@ type Explosion struct {
 
 func NewExplosion(small bool, x, y int) *Explosion {
 	spriteBounds := explosionAnimation[0].Bounds()
-	rect := NewRect(
+	rect := rect.NewRect(
 		spriteBounds.Min.X,
 		spriteBounds.Min.Y,
 		spriteBounds.Max.X,
@@ -78,7 +83,7 @@ func (b *Explosion) IsAlive() bool {
 	return b.isAlive
 }
 
-func (b *Explosion) Rect() *Rect {
+func (b *Explosion) Rect() *rect.Rect {
 	return &b.rect
 }
 
