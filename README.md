@@ -79,7 +79,7 @@ $ cd ~/Downloads
 ```sh
 $ git clone https://github.com/jespino/spaceshooter.git
 $ cd spaceshooter/
-$ go build *.go
+$ go build -o ./ ./...
 $ ./spaceshooter
 ```
 
