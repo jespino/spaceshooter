@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
 
@@ -18,7 +19,7 @@ type Missile struct {
 }
 
 func NewMissile(x, y int) (*Missile, error) {
-	spriteImage := imageFromBytes(missileImage)
+	spriteImage := media.ImageFromBytes(missileImage)
 	spriteBounds := spriteImage.Bounds()
 	rect := rect.NewRect(
 		spriteBounds.Min.X,

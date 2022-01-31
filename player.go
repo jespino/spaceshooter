@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 	"github.com/jespino/spaceshooter/sprites"
 )
@@ -33,19 +34,9 @@ type Player struct {
 }
 
 func NewPlayer(x, y int) (*Player, error) {
-	bulletSound := getAudioFromFile("sounds/pew.ogg")
-	bulletSoundPlayer, err := audioContext.NewPlayer(bulletSound)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	missileSound := getAudioFromFile("sounds/rocket.ogg")
-	missileSoundPlayer, err := audioContext.NewPlayer(missileSound)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	spriteImage := getImageFromFilePath("assets/playerShip1_orange.png")
+	bulletSoundPlayer := media.GetAudioPlayerFromFile(assets, "sounds/pew.ogg")
+	missileSoundPlayer := media.GetAudioPlayerFromFile(assets, "sounds/rocket.ogg")
+	spriteImage := media.GetImageFromFilePath(assets, "assets/playerShip1_orange.png")
 	spriteBounds := spriteImage.Bounds()
 	rect := rect.NewRect(
 		spriteBounds.Min.X,

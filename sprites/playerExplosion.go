@@ -3,30 +3,21 @@ package sprites
 import (
 	"embed"
 	"fmt"
-	"image"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
 
 //go:embed playerExplosion
 var playerExplosionFiles embed.FS
-
 var playerExplosionAnimation []*ebiten.Image
 
 func init() {
 	for x := 0; x < 9; x++ {
-		f, err := playerExplosionFiles.Open(fmt.Sprintf("playerExplosion/playerExplosion%d.png", x))
-		if err != nil {
-			panic(err.Error())
-		}
-		defer f.Close()
-		img, _, err := image.Decode(f)
-		if err != nil {
-			panic(err.Error())
-		}
-		playerExplosionAnimation = append(playerExplosionAnimation, ebiten.NewImageFromImage(img))
+		img := media.GetImageFromFilePath(playerExplosionFiles, fmt.Sprintf("playerExplosion/playerExplosion%d.png", x))
+		playerExplosionAnimation = append(playerExplosionAnimation, img)
 	}
 }
 

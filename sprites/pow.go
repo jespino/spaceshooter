@@ -5,13 +5,14 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
 
-//go:embed pow_shield.png
+//go:embed pow/pow_shield.png
 var powShieldImage []byte
 
-//go:embed pow_gun.png
+//go:embed pow/pow_gun.png
 var powGunImage []byte
 
 const (
@@ -32,9 +33,9 @@ func NewPow(x, y, screenHeight int) *Pow {
 	powType := rand.Intn(2)
 	var spriteImage *ebiten.Image
 	if powType == PowTypeGun {
-		spriteImage = imageFromBytes(powGunImage)
+		spriteImage = media.ImageFromBytes(powGunImage)
 	} else {
-		spriteImage = imageFromBytes(powShieldImage)
+		spriteImage = media.ImageFromBytes(powShieldImage)
 	}
 	spriteBounds := spriteImage.Bounds()
 	rect := rect.NewRect(

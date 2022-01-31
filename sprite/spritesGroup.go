@@ -1,4 +1,4 @@
-package sprites
+package sprite
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
@@ -49,17 +49,4 @@ func (s *SpritesGroup) Kill() {
 	for i := 0; i < s.num; i++ {
 		s.sprites[i].Kill()
 	}
-}
-
-func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []*Collition {
-	collitions := []*Collition{}
-	for i := 0; i < g1.num; i++ {
-		for j := 0; j < g2.num; j++ {
-			collition := SpritesCollides(g1.sprites[i], g2.sprites[j])
-			if collition != nil {
-				collitions = append(collitions, collition)
-			}
-		}
-	}
-	return collitions
 }

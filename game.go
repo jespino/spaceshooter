@@ -10,6 +10,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"github.com/jespino/spaceshooter/media"
+	"github.com/jespino/spaceshooter/sprite"
 	"github.com/jespino/spaceshooter/sprites"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/goregular"
@@ -25,7 +27,6 @@ const (
 	frameWidth  = 32
 	frameHeight = 32
 	frameNum    = 8
-	sampleRate  = 48000
 )
 
 const (
@@ -55,43 +56,17 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
-	mainMenuImage := getImageFromFilePath("assets/main.png")
-	gameBackground := getImageFromFilePath("assets/back.png")
-	shipImage := getImageFromFilePath("assets/playerShip1_orange.png")
-	mainMenuMusic := getAudioFromFile("sounds/menu.ogg")
-	mainMenuMusicPlayer, err := audioContext.NewPlayer(audio.NewInfiniteLoop(mainMenuMusic, mainMenuMusic.Length()))
-	if err != nil {
-		return nil, err
-	}
+	mainMenuImage := media.GetImageFromFilePath(assets, "assets/main.png")
+	gameBackground := media.GetImageFromFilePath(assets, "assets/back.png")
+	shipImage := media.GetImageFromFilePath(assets, "assets/playerShip1_orange.png")
+
+	mainMenuMusicPlayer := media.GetLoopAudioPlayerFromFile(assets, "sounds/menu.ogg")
 	mainMenuMusicPlayer.Play()
-
-	explosion1 := getAudioFromFile("sounds/expl1.ogg")
-	explosion1Player, err := audioContext.NewPlayer(explosion1)
-	if err != nil {
-		return nil, err
-	}
-	explosion2 := getAudioFromFile("sounds/expl2.ogg")
-	explosion2Player, err := audioContext.NewPlayer(explosion2)
-	if err != nil {
-		return nil, err
-	}
-	playerDie := getAudioFromFile("sounds/rumble1.ogg")
-	playerDiePlayer, err := audioContext.NewPlayer(playerDie)
-	if err != nil {
-		return nil, err
-	}
-
-	gameMusic := getAudioFromFile("sounds/tgfcoder-FrozenJam-SeamlessLoop.ogg")
-	gameMusicPlayer, err := audioContext.NewPlayer(audio.NewInfiniteLoop(gameMusic, gameMusic.Length()))
-	if err != nil {
-		return nil, err
-	}
-
-	getReadyAudio := getAudioFromFile("sounds/getready.ogg")
-	getReadyPlayer, err := audioContext.NewPlayer(getReadyAudio)
-	if err != nil {
-		return nil, err
-	}
+	explosion1Player := media.GetAudioPlayerFromFile(assets, "sounds/expl1.ogg")
+	explosion2Player := media.GetAudioPlayerFromFile(assets, "sounds/expl2.ogg")
+	playerDiePlayer := media.GetAudioPlayerFromFile(assets, "sounds/rumble1.ogg")
+	gameMusicPlayer := media.GetLoopAudioPlayerFromFile(assets, "sounds/tgfcoder-FrozenJam-SeamlessLoop.ogg")
+	getReadyPlayer := media.GetAudioPlayerFromFile(assets, "sounds/getready.ogg")
 
 	fontObj, err := opentype.Parse(goregular.TTF)
 	if err != nil {
@@ -187,7 +162,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) handleBulletsMobsCollitions() {
-	collitions := sprites.SpritesGroupsCollides(bullets, mobs)
+	collitions := sprite.SpritesGroupsCollides(bullets, mobs)
 	for _, collition := range collitions {
 		if !collition.Member1.IsAlive() || !collition.Member2.IsAlive() {
 			continue
@@ -209,9 +184,9 @@ func (g *Game) handleBulletsMobsCollitions() {
 }
 
 func (g *Game) handlePlayerPowerupsCollitions() {
-	playerGroup := sprites.SpritesGroup{}
+	playerGroup := sprite.SpritesGroup{}
 	playerGroup.Add(g.player)
-	collitions := sprites.SpritesGroupsCollides(playerGroup, powerups)
+	collitions := sprite.SpritesGroupsCollides(playerGroup, powerups)
 	for _, collition := range collitions {
 		if collition.Member2.(*sprites.Pow).PowType == sprites.PowTypeShield {
 			g.shield += 10 + rand.Intn(20)
@@ -228,9 +203,9 @@ func (g *Game) handlePlayerPowerupsCollitions() {
 }
 
 func (g *Game) handlePlayerMobsCollitions() {
-	playerGroup := sprites.SpritesGroup{}
+	playerGroup := sprite.SpritesGroup{}
 	playerGroup.Add(g.player)
-	collitions := sprites.SpritesGroupsCollides(playerGroup, mobs)
+	collitions := sprite.SpritesGroupsCollides(playerGroup, mobs)
 	for _, collition := range collitions {
 		radius := (float64(collition.Member2.Rect().Width()) * 0.90) / 2
 		g.shield -= int(radius * 2)

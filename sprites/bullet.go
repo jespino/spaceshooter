@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
 
@@ -18,7 +19,7 @@ type Bullet struct {
 }
 
 func NewBullet(x, y int) (*Bullet, error) {
-	spriteImage := imageFromBytes(bulletImage)
+	spriteImage := media.ImageFromBytes(bulletImage)
 	spriteBounds := spriteImage.Bounds()
 	rect := rect.NewRect(
 		spriteBounds.Min.X,
