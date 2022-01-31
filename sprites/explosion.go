@@ -4,9 +4,11 @@ import (
 	"embed"
 	"fmt"
 	_ "image/png"
+	"math/rand"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
@@ -14,11 +16,15 @@ import (
 //go:embed explosion
 var explosionFiles embed.FS
 var explosionAnimation []*ebiten.Image
+var explosionPlayers []*audio.Player
 
 func init() {
 	for x := 0; x < 9; x++ {
 		img := media.GetImageFromFilePath(explosionFiles, fmt.Sprintf("explosion/explosion%d.png", x))
 		explosionAnimation = append(explosionAnimation, img)
+		explosion1Player := media.GetAudioPlayerFromFile(explosionFiles, "explosion/expl1.ogg")
+		explosion2Player := media.GetAudioPlayerFromFile(explosionFiles, "explosion/expl2.ogg")
+		explosionPlayers = []*audio.Player{explosion1Player, explosion2Player}
 	}
 }
 
@@ -40,6 +46,9 @@ func NewExplosion(small bool, x, y int) *Explosion {
 	)
 	rect.SetCenterX(x)
 	rect.SetCenterY(y)
+	expl := explosionPlayers[rand.Intn(2)]
+	expl.Rewind()
+	expl.Play()
 	return &Explosion{
 		isAlive:    true,
 		rect:       rect,

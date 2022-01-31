@@ -16,7 +16,7 @@ func SpritesCollides(s1 Sprite, s2 Sprite) *Collition {
 	return nil
 }
 
-func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []*Collition {
+func SpritesGroupsCollides(g1 *SpritesGroup, g2 *SpritesGroup) []*Collition {
 	collitions := []*Collition{}
 	for i := 0; i < g1.num; i++ {
 		for j := 0; j < g2.num; j++ {
@@ -27,4 +27,10 @@ func SpritesGroupsCollides(g1 SpritesGroup, g2 SpritesGroup) []*Collition {
 		}
 	}
 	return collitions
+}
+
+func SpriteAndGroupCollides(s Sprite, g *SpritesGroup) []*Collition {
+	tmpGroup := &SpritesGroup{}
+	tmpGroup.Add(s)
+	return SpritesGroupsCollides(tmpGroup, g)
 }

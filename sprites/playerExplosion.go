@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
 )
@@ -13,11 +14,13 @@ import (
 //go:embed playerExplosion
 var playerExplosionFiles embed.FS
 var playerExplosionAnimation []*ebiten.Image
+var playerDiePlayer *audio.Player
 
 func init() {
 	for x := 0; x < 9; x++ {
 		img := media.GetImageFromFilePath(playerExplosionFiles, fmt.Sprintf("playerExplosion/playerExplosion%d.png", x))
 		playerExplosionAnimation = append(playerExplosionAnimation, img)
+		playerDiePlayer = media.GetAudioPlayerFromFile(playerExplosionFiles, "playerExplosion/rumble1.ogg")
 	}
 }
 
@@ -39,6 +42,8 @@ func NewPlayerExplosion(x, y int) *PlayerExplosion {
 	)
 	rect.SetCenterX(x)
 	rect.SetCenterY(y)
+	playerDiePlayer.Rewind()
+	playerDiePlayer.Play()
 	return &PlayerExplosion{
 		isAlive:    true,
 		rect:       rect,

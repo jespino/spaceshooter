@@ -1,14 +1,18 @@
-package main
+package sprites
 
 import (
+	"embed"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/jespino/spaceshooter/media"
 	"github.com/jespino/spaceshooter/rect"
-	"github.com/jespino/spaceshooter/sprites"
+	"github.com/jespino/spaceshooter/sprite"
 )
+
+//go:embed player
+var playerFiles embed.FS
 
 const (
 	powerup_time = 30000
@@ -31,13 +35,15 @@ type Player struct {
 	bulletSoundPlayer  *audio.Player
 	missileSoundPlayer *audio.Player
 	isAlive            bool
+	bulletsGroup       *sprite.SpritesGroup
+	screenWidth        int
+	screenHeight       int
 }
 
-func NewPlayer(x, y int) (*Player, error) {
-	bulletSoundPlayer := media.GetAudioPlayerFromFile(assets, "sounds/pew.ogg")
-	missileSoundPlayer := media.GetAudioPlayerFromFile(assets, "sounds/rocket.ogg")
-	spriteImage := media.GetImageFromFilePath(assets, "assets/playerShip1_orange.png")
-	spriteBounds := spriteImage.Bounds()
+func NewPlayer(shipImage *ebiten.Image, bulletsGroup *sprite.SpritesGroup, x, y int, screenWidth, screenHeight int) (*Player, error) {
+	bulletSoundPlayer := media.GetAudioPlayerFromFile(playerFiles, "player/pew.ogg")
+	missileSoundPlayer := media.GetAudioPlayerFromFile(playerFiles, "player/rocket.ogg")
+	spriteBounds := shipImage.Bounds()
 	rect := rect.NewRect(
 		spriteBounds.Min.X,
 		spriteBounds.Min.Y,
@@ -47,7 +53,7 @@ func NewPlayer(x, y int) (*Player, error) {
 	rect.SetCenterX(x)
 	rect.SetCenterY(y)
 	return &Player{
-		image:              spriteImage,
+		image:              shipImage,
 		speedx:             0,
 		shield:             100,
 		shot_delay:         250,
@@ -60,6 +66,9 @@ func NewPlayer(x, y int) (*Player, error) {
 		bulletSoundPlayer:  bulletSoundPlayer,
 		missileSoundPlayer: missileSoundPlayer,
 		isAlive:            true,
+		bulletsGroup:       bulletsGroup,
+		screenWidth:        screenWidth,
+		screenHeight:       screenHeight,
 	}, nil
 }
 
@@ -71,8 +80,8 @@ func (p *Player) Update() {
 
 	if p.hidden && time.Now().UnixMilli()-p.hide_time > hide_time {
 		p.hidden = false
-		p.rect.SetCenterX(screenWidth / 2)
-		p.rect.SetBottom(screenHeight - 30)
+		p.rect.SetCenterX(p.screenWidth / 2)
+		p.rect.SetBottom(p.screenHeight - 30)
 	}
 
 	p.speedx = 0
@@ -87,8 +96,8 @@ func (p *Player) Update() {
 		p.shoot()
 	}
 
-	if p.rect.Right() > screenWidth {
-		p.rect.SetRight(screenWidth)
+	if p.rect.Right() > p.screenWidth {
+		p.rect.SetRight(p.screenWidth)
 	} else if p.rect.Left() < 0 {
 		p.rect.SetLeft(0)
 	}
@@ -100,45 +109,45 @@ func (p *Player) shoot() {
 	if now-p.last_shot > p.shot_delay {
 		p.last_shot = now
 		if p.power == 1 {
-			bullet, err := sprites.NewBullet(p.rect.CenterX(), p.rect.Top())
+			bullet, err := NewBullet(p.rect.CenterX(), p.rect.Top())
 			if err != nil {
 				panic(err)
 			}
-			bullets.Add(bullet)
+			p.bulletsGroup.Add(bullet)
 			p.bulletSoundPlayer.Rewind()
 			p.bulletSoundPlayer.Play()
 		}
 		if p.power == 2 {
-			bullet1, err := sprites.NewBullet(p.rect.Left(), p.rect.CenterY())
+			bullet1, err := NewBullet(p.rect.Left(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			bullet2, err := sprites.NewBullet(p.rect.Right(), p.rect.CenterY())
+			bullet2, err := NewBullet(p.rect.Right(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			bullets.Add(bullet1)
-			bullets.Add(bullet2)
+			p.bulletsGroup.Add(bullet1)
+			p.bulletsGroup.Add(bullet2)
 			p.bulletSoundPlayer.Rewind()
 			p.bulletSoundPlayer.Play()
 		}
 
 		if p.power >= 3 {
-			bullet1, err := sprites.NewBullet(p.rect.Left(), p.rect.CenterY())
+			bullet1, err := NewBullet(p.rect.Left(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			bullet2, err := sprites.NewBullet(p.rect.Right(), p.rect.CenterY())
+			bullet2, err := NewBullet(p.rect.Right(), p.rect.CenterY())
 			if err != nil {
 				panic(err)
 			}
-			missile1, err := sprites.NewMissile(p.rect.CenterX(), p.rect.Top())
+			missile1, err := NewMissile(p.rect.CenterX(), p.rect.Top())
 			if err != nil {
 				panic(err)
 			}
-			bullets.Add(bullet1)
-			bullets.Add(bullet2)
-			bullets.Add(missile1)
+			p.bulletsGroup.Add(bullet1)
+			p.bulletsGroup.Add(bullet2)
+			p.bulletsGroup.Add(missile1)
 			p.bulletSoundPlayer.Rewind()
 			p.bulletSoundPlayer.Play()
 			p.missileSoundPlayer.Rewind()
@@ -147,7 +156,7 @@ func (p *Player) shoot() {
 	}
 }
 
-func (p *Player) powerup() {
+func (p *Player) Powerup() {
 	if p.power < 3 {
 		p.power += 1
 	}
@@ -157,8 +166,8 @@ func (p *Player) powerup() {
 func (p *Player) hide() {
 	p.hidden = true
 	p.hide_time = time.Now().UnixMilli()
-	p.rect.SetCenterX(screenWidth / 29)
-	p.rect.SetCenterY(screenHeight + 200)
+	p.rect.SetCenterX(p.screenWidth / 29)
+	p.rect.SetCenterY(p.screenHeight + 200)
 }
 
 func (p *Player) Draw(screen *ebiten.Image) {
